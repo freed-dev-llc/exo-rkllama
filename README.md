@@ -148,7 +148,7 @@ Then restart the Nix daemon: `sudo launchctl kickstart -k system/org.nixos.nix-d
     --force
   ```
 
-Clone the repo, build the dashboard, and run exo:
+Clone the repo, build the dashboard, install the dependencies, and run exo:
 
 ```bash
 # Clone exo
@@ -156,6 +156,9 @@ git clone https://github.com/exo-explore/exo
 
 # Build dashboard
 cd exo/dashboard && npm install && npm run build && cd ..
+
+# Install Python dependencies, including the MLX backend
+uv sync --extra mlx
 
 # Run exo
 uv run exo
@@ -206,7 +209,7 @@ rustup toolchain install nightly
 
 **Note:** The `macmon` package is macOS-only and not required for Linux.
 
-Clone the repo, build the dashboard, and run exo:
+Clone the repo, build the dashboard, install the dependencies, and run exo:
 
 ```bash
 # Clone exo
@@ -214,6 +217,10 @@ git clone https://github.com/exo-explore/exo
 
 # Build dashboard
 cd exo/dashboard && npm install && npm run build && cd ..
+
+# Install Python dependencies with the MLX backend for your hardware
+# (NVIDIA: --extra mlx-cuda13 or --extra mlx-cuda12)
+uv sync --extra mlx-cpu
 
 # Run exo
 uv run exo
@@ -269,14 +276,14 @@ The app will ask for permission to modify system settings and install a new Netw
 
 **Custom Namespace for Cluster Isolation:**
 
-The macOS app includes a custom namespace feature that allows you to isolate your exo cluster from others on the same network. This is configured through the `EXO_LIBP2P_NAMESPACE` setting:
+The macOS app includes a custom namespace feature that allows you to isolate your exo cluster from others on the same network. This is configured through the `EXO_ZENOH_NAMESPACE` setting:
 
 - **Use cases**:
   - Running multiple separate exo clusters on the same network
   - Isolating development/testing clusters from production clusters
   - Preventing accidental cluster joining
 
-- **Configuration**: Access this setting in the app's Advanced settings (or set the `EXO_LIBP2P_NAMESPACE` environment variable when running from source)
+- **Configuration**: Access this setting in the app's Advanced settings (or set the `EXO_ZENOH_NAMESPACE` environment variable when running from source)
 
 The namespace is logged on startup for debugging purposes.
 
@@ -342,7 +349,7 @@ exo supports several environment variables for configuration:
 | `EXO_MODELS_READ_ONLY_DIRS` | Colon-separated read-only directories to search for pre-downloaded models (e.g., NFS mounts, shared storage). Models here cannot be deleted. | None |
 | `EXO_OFFLINE` | Run without internet connection (uses only local models) | `false` |
 | `EXO_ENABLE_IMAGE_MODELS` | Enable image model support | `false` |
-| `EXO_LIBP2P_NAMESPACE` | Custom namespace for cluster isolation | None |
+| `EXO_ZENOH_NAMESPACE` | Custom namespace for cluster isolation (same as `--namespace`) | exo version |
 | `EXO_FAST_SYNCH` | Control MLX_METAL_FAST_SYNCH behavior (for JACCL backend) | Auto |
 | `EXO_TRACING_ENABLED` | Enable distributed tracing for performance analysis | `false` |
 
@@ -362,7 +369,7 @@ EXO_OFFLINE=true uv run exo
 EXO_ENABLE_IMAGE_MODELS=true uv run exo
 
 # Use custom namespace for cluster isolation
-EXO_LIBP2P_NAMESPACE=my-dev-cluster uv run exo
+EXO_ZENOH_NAMESPACE=my-dev-cluster uv run exo
 ```
 
 ---
